@@ -36,9 +36,19 @@ pipeline {
     post {
         success {
             echo "Build #${BUILD_NUMBER} réussi !"
+            mail to: 'ayoubniri78@gmail.com',
+             subject: "✅ Build Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+             body: "Build was successful. Check: ${env.BUILD_URL}"
+
         }
-        failure {
-            echo "Build #${BUILD_NUMBER} échoué !"
+        mail to: 'ayoubniri78@gmail.com',
+             subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+             body: """
+               Build failed!
+               Job: ${env.JOB_NAME}
+               Build: ${env.BUILD_NUMBER}
+               URL: ${env.BUILD_URL}
+             """
         }
         always {
             cleanWs()
