@@ -41,14 +41,15 @@ pipeline {
              body: "Build was successful. Check: ${env.BUILD_URL}"
 
         }
-        mail to: 'elharitihassane@gmail.com',
-             subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-             body: """
-               Build failed!
-               Job: ${env.JOB_NAME}
-               Build: ${env.BUILD_NUMBER}
-               URL: ${env.BUILD_URL}
-             """
+        failure {                                    // ← this was missing!
+            mail to: 'elharitihassane@gmail.com',
+                 subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """
+                   Build failed!
+                   Job: ${env.JOB_NAME}
+                   Build: ${env.BUILD_NUMBER}
+                   URL: ${env.BUILD_URL}
+                 """
         }
         always {
             cleanWs()
