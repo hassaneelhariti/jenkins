@@ -36,12 +36,12 @@ pipeline {
     post {
         success {
             echo "Build #${BUILD_NUMBER} réussi !"
-            mail to: 'ayoubniri78@gmail.com',
+            mail to: 'elharitihassane@gmail.com',
              subject: "✅ Build Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
              body: "Build was successful. Check: ${env.BUILD_URL}"
 
         }
-        mail to: 'ayoubniri78@gmail.com',
+        mail to: 'elharitihassane@gmail.com',
              subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
              body: """
                Build failed!
