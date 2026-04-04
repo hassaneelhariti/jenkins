@@ -1,6 +1,8 @@
 pipeline {
     agent none
+
     stages {
+
         stage('Checkout') {
             agent any
             steps {
@@ -9,22 +11,24 @@ pipeline {
                 sh 'git log --oneline -5'
             }
         }
+
         stage('Build') {
             agent {
                 docker {
                     image 'maven:3.8.7-eclipse-temurin-11'
-                    args "-v $HOME/.m2:/root/.m2 --user \$(id -u):\$(id -g)"
+                    args '-v /home/hassaneelhariti/.m2:/root/.m2'
                 }
             }
             steps {
                 sh 'mvn clean compile -B'
             }
         }
+
         stage('Tests Unitaires') {
             agent {
                 docker {
                     image 'maven:3.8.7-eclipse-temurin-11'
-                    args "-v $HOME/.m2:/root/.m2 --user \$(id -u):\$(id -g)"
+                    args '-v /home/hassaneelhariti/.m2:/root/.m2'
                 }
             }
             steps {
@@ -36,11 +40,12 @@ pipeline {
                 }
             }
         }
+
         stage('Package') {
             agent {
                 docker {
                     image 'maven:3.8.7-eclipse-temurin-11'
-                    args "-v $HOME/.m2:/root/.m2 --user \$(id -u):\$(id -g)"
+                    args '-v /home/hassaneelhariti/.m2:/root/.m2'
                 }
             }
             steps {
@@ -49,11 +54,12 @@ pipeline {
                                  fingerprint: true
             }
         }
+
     }
+
     post {
         success {
             node('built-in') {
-                echo "Build #${BUILD_NUMBER} reussi !"
                 mail to: 'elharitihassane@gmail.com',
                      subject: "Build Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                      body: "Build successful! Check: ${env.BUILD_URL}"
