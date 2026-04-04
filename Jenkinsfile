@@ -5,8 +5,8 @@ pipeline {
         stage('Checkout') {
             agent {
                 docker {
-                    image 'alpine/git'         
-                    args '-v /tmp/workspace:/workspace'
+                    image 'maven:3.8.7-eclipse-temurin-11'   // ← plus stable
+                    args '-u root -v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
@@ -38,7 +38,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml'
+                    junit 'target/surefire-recleaports/*.xml'
                 }
                 success {
                     echo '✅ Tous les tests sont passes !'
