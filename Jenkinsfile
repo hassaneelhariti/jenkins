@@ -1,50 +1,41 @@
 pipeline {
-    agent any
+    agent none
 
     stages {
+
         stage('Checkout') {
-            agent {
-                docker {
-                    image 'maven:3.8.7-eclipse-temurin-11'   // ← plus stable
-                    args '-u root -v $HOME/.m2:/root/.m2'
-                }
-            }
+            agent any
             steps {
                 checkout scm
+                sh 'git log --oneline -5'
             }
         }
 
         stage('Build') {
             agent {
                 docker {
-                    image 'maven:3.8.7-openjdk-11'   
-                    args '-v $HOME/.m2:/root/.m2'     
+                    image 'maven:3.8.7-eclipse-temurin-11'
+                    args '-u root -v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean compile -B'
             }
         }
 
-        stage('Tests unitaires') {
+        stage('Tests Unitaires') {
             agent {
                 docker {
-                    image 'maven:3.8.7-openjdk-11'
-                    args '-v $HOME/.m2:/root/.m2'
+                    image 'maven:3.8.7-eclipse-temurin-11'
+                    args '-u root -v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
-                sh 'mvn test'
+                sh 'mvn test -B'
             }
             post {
                 always {
-                    junit 'target/surefire-recleaports/*.xml'
-                }
-                success {
-                    echo '✅ Tous les tests sont passes !'
-                }
-                failure {
-                    echo '❌ Des tests ont echoue !'
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
@@ -52,26 +43,26 @@ pipeline {
         stage('Package') {
             agent {
                 docker {
-                    image 'maven:3.8.7-openjdk-11'
-                    args '-v $HOME/.m2:/root/.m2'
+                    image 'maven:3.8.7-eclipse-temurin-11'
+                    args '-u root -v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
-                sh 'mvn package -DskipTests'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                sh 'mvn package -DskipTests -B'
+                archiveArtifacts artifacts: 'target/*.jar',
+                                 fingerprint: true
             }
         }
+
     }
 
     post {
         success {
-            echo "Build #${BUILD_NUMBER} réussi !"
             mail to: 'elharitihassane@gmail.com',
-             subject: "✅ Build Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-             body: "Build was successful. Check: ${env.BUILD_URL}"
-
+                 subject: "✅ Build Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Build successful! Check: ${env.BUILD_URL}"
         }
-        failure {                                    
+        failure {
             mail to: 'elharitihassane@gmail.com',
                  subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: """
